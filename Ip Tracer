@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IP Tracer App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .box {
+            background: #111;
+            padding: 25px;
+            border-radius: 12px;
+            width: 360px;
+            box-shadow: 0 0 20px rgba(0,0,0,.5);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #00c6ff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #00f2fe;
+        }
+        .result {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .row {
+            margin-bottom: 6px;
+        }
+        a {
+            color: #00f2fe;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🌍 IP Tracer</h2>
+
+    <input type="text" id="ip" placeholder="Enter IP address (optional)">
+    <button onclick="traceIP()">Trace IP</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function traceIP() {
+    const ip = document.getElementById("ip").value.trim();
+    const result = document.getElementById("result");
+    result.innerHTML = "⏳ Tracing...";
+
+    let url = ip ? `https://ipapi.co/${ip}/json/` : "https://ipapi.co/json/";
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.error) {
+            result.innerHTML = "❌ Invalid IP Address";
+            return;
+        }
+
+        result.innerHTML = `
+            <div class="row"><b>IP:</b> ${data.ip}</div>
+            <div class="row"><b>Country:</b> ${data.country_name}</div>
+            <div class="row"><b>City:</b> ${data.city}</div>
+            <div class="row"><b>Region:</b> ${data.region}</div>
+            <div class="row"><b>ISP:</b> ${data.org}</div>
+            <div class="row"><b>Latitude:</b> ${data.latitude}</div>
+            <div class="row"><b>Longitude:</b> ${data.longitude}</div>
+            <div class="row">
+                <b>Map:</b> 
+                <a target="_blank" href="https://www.google.com/maps?q=${data.latitude},${data.longitude}">
+                    View Location
+                </a>
+            </div>
+        `;
+    } catch (err) {
+        result.innerHTML = "⚠️ Something went wrong!";
+    }
+}
+</script>
+
+</body>
+</html>
