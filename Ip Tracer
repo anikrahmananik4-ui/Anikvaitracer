@@ -1,111 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>IP Tracer App</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .box {
-            background: #111;
-            padding: 25px;
-            border-radius: 12px;
-            width: 360px;
-            box-shadow: 0 0 20px rgba(0,0,0,.5);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: none;
-            outline: none;
-            margin-bottom: 10px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            background: #00c6ff;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #00f2fe;
-        }
-        .result {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        .row {
-            margin-bottom: 6px;
-        }
-        a {
-            color: #00f2fe;
-            text-decoration: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>IP Tracer by Anik</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<style>
+body{
+ margin:0;
+ background:black;
+ font-family:'Orbitron',monospace;
+ color:#00ffe7;
+}
+header{
+ text-align:center;
+ padding:15px;
+ border-bottom:1px solid #00ffe7;
+ box-shadow:0 0 25px #00ffe7;
+}
+.container{
+ max-width:420px;
+ margin:auto;
+ padding:15px;
+}
+.card{
+ border:1px solid #00ffe7;
+ box-shadow:0 0 15px #00ffe7;
+ padding:12px;
+ margin-bottom:15px;
+}
+h3{margin:5px 0;font-size:15px}
+p{font-size:13px;margin:4px 0}
+button,input{
+ width:100%;
+ margin-top:6px;
+ background:black;
+ color:#00ffe7;
+ border:1px solid #00ffe7;
+ padding:8px;
+ font-family:'Orbitron';
+}
+button:hover{background:#00ffe7;color:black}
+#map{height:220px;margin-top:10px}
+#pulse{
+ height:10px;
+ width:0%;
+ background:#00ffe7;
+ box-shadow:0 0 20px #00ffe7;
+}
+</style>
 </head>
+
 <body>
 
-<div class="box">
-    <h2>🌍 IP Tracer</h2>
+<header>
+<h2>🌐 IP Tracer by Anik</h2>
+<small>Cyber Intelligence Panel</small>
+</header>
 
-    <input type="text" id="ip" placeholder="Enter IP address (optional)">
-    <button onclick="traceIP()">Trace IP</button>
+<div class="container">
 
-    <div class="result" id="result"></div>
+<!-- IP TRACER -->
+<div class="card" id="ipinfo">
+<h3>📍 IP Tracer</h3>
+<p>Detecting...</p>
 </div>
 
+<!-- CUSTOM IP -->
+<div class="card">
+<h3>🔎 Custom IP Lookup</h3>
+<input id="cip" placeholder="Enter IP address">
+<button onclick="customIP()">Search</button>
+<div id="cipout"></div>
+</div>
+
+<!-- CONNECTION INTELLIGENCE -->
+<div class="card" id="conn">
+<h3>📡 Connection Intelligence</h3>
+</div>
+
+<!-- PRIVACY RADAR -->
+<div class="card" id="privacy">
+<h3>🧠 Privacy Radar</h3>
+</div>
+
+<!-- CYBER SIGNAL -->
+<div class="card">
+<h3>🛰 Cyber Signal Pulse</h3>
+<div id="pulse"></div>
+</div>
+
+<!-- MAP -->
+<div class="card">
+<h3>🗺 Location Map</h3>
+<div id="map"></div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-async function traceIP() {
-    const ip = document.getElementById("ip").value.trim();
-    const result = document.getElementById("result");
-    result.innerHTML = "⏳ Tracing...";
+// ================= IP TRACER =================
+async function myIP(){
+ let ip = await fetch("https://api.ipify.org?format=json").then(r=>r.json());
+ let d = await fetch("https://ipapi.co/"+ip.ip+"/json/").then(r=>r.json());
 
-    let url = ip ? `https://ipapi.co/${ip}/json/` : "https://ipapi.co/json/";
-
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.error) {
-            result.innerHTML = "❌ Invalid IP Address";
-            return;
-        }
-
-        result.innerHTML = `
-            <div class="row"><b>IP:</b> ${data.ip}</div>
-            <div class="row"><b>Country:</b> ${data.country_name}</div>
-            <div class="row"><b>City:</b> ${data.city}</div>
-            <div class="row"><b>Region:</b> ${data.region}</div>
-            <div class="row"><b>ISP:</b> ${data.org}</div>
-            <div class="row"><b>Latitude:</b> ${data.latitude}</div>
-            <div class="row"><b>Longitude:</b> ${data.longitude}</div>
-            <div class="row">
-                <b>Map:</b> 
-                <a target="_blank" href="https://www.google.com/maps?q=${data.latitude},${data.longitude}">
-                    View Location
-                </a>
-            </div>
-        `;
-    } catch (err) {
-        result.innerHTML = "⚠️ Something went wrong!";
-    }
+ document.getElementById("ipinfo").innerHTML = `
+ <h3>📍 IP Tracer</h3>
+ <p>IP: ${d.ip}</p>
+ <p>Country: ${d.country_name}</p>
+ <p>City: ${d.city}</p>
+ <p>ISP: ${d.org}</p>
+ <p>Timezone: ${d.timezone}</p>
+ `;
 }
+myIP();
+
+// ================= CUSTOM IP =================
+async function customIP(){
+ let ip = document.getElementById("cip").value;
+ let d = await fetch("https://ipapi.co/"+ip+"/json/").then(r=>r.json());
+ document.getElementById("cipout").innerHTML = `
+ <p>Country: ${d.country_name}</p>
+ <p>City: ${d.city}</p>
+ <p>ISP: ${d.org}</p>
+ `;
+}
+
+// ================= CONNECTION INTELLIGENCE =================
+const c = navigator.connection || {};
+document.getElementById("conn").innerHTML += `
+<p>Type: ${c.effectiveType || "N/A"}</p>
+<p>Downlink: ${c.downlink || "N/A"} Mbps</p>
+<p>RTT: ${c.rtt || "N/A"} ms</p>
+<p>Save Data: ${c.saveData || false}</p>
+<p>Status: ${navigator.onLine ? "Online" : "Offline"}</p>
+`;
+
+// ================= PRIVACY RADAR =================
+document.getElementById("privacy").innerHTML += `
+<p>Cookies Enabled: ${navigator.cookieEnabled}</p>
+<p>Do Not Track: ${navigator.doNotTrack}</p>
+<p>LocalStorage: ${!!window.localStorage}</p>
+<p>SessionStorage: ${!!window.sessionStorage}</p>
+<p>IndexedDB: ${!!window.indexedDB}</p>
+`;
+
+// ================= CYBER SIGNAL =================
+let w = 0;
+setInterval(()=>{
+ w = (w + Math.random()*25) % 100;
+ document.getElementById("pulse").style.width = w + "%";
+},600);
+
+// ================= MAP =================
+let map = L.map('map').setView([0,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+navigator.geolocation.getCurrentPosition(pos=>{
+ let lat = pos.coords.latitude;
+ let lon = pos.coords.longitude;
+ map.setView([lat,lon],12);
+ L.marker([lat,lon]).addTo(map).bindPopup("Your Location").openPopup();
+});
 </script>
 
 </body>
